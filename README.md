@@ -1,6 +1,6 @@
 # Https redirect filter
 
-A simple Play Framework filter that redirects all non-secure traffic to it's secure alternative (https)
+A simple Play Framework filter that redirects all non-secure traffic to its secure alternative (https)
 
 ## Installing
 
