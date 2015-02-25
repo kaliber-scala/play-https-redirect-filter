@@ -10,8 +10,8 @@ import scala.concurrent.Future
 
 object HttpsRedirectFilter extends Filter {
 
-  lazy val isSecureOnly = play.api.Play.current.configuration.getBoolean("HttpsRedirectFilter.enabled").getOrElse(false)
-  lazy val sslPort = play.api.Play.current.configuration.getString("HttpsRedirectFilter.sslPort").getOrElse("443")
+  lazy val isSecureOnly = play.api.Play.current.configuration.getBoolean("httpsRedirectFilter.enabled").getOrElse(false)
+  lazy val sslPort = play.api.Play.current.configuration.getString("httpsRedirectFilter.sslPort").getOrElse("443")
 
   def apply(nextFilter: (RequestHeader) => Future[Result])(request: RequestHeader): Future[Result] = {
 
