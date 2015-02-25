@@ -7,7 +7,7 @@ A simple Play Framework filter that redirects all non-secure traffic to its secu
 ```scala
 resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local"
 
-libraryDependencies += "nl.rhinofly" %% "play-https-redirect-filter" % "0.1"
+libraryDependencies += "nl.rhinofly" %% "play-https-redirect-filter" % "0.2"
 ```
 
 *Global.scala*
