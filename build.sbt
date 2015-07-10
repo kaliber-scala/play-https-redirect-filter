@@ -16,8 +16,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % "2.3.0" % "provided",
-  "com.typesafe.play" %% "play-ws" % "2.3.0" % "provided")
+  "com.typesafe.play" %% "play" % "2.4.2" % "provided"
+)
 
 publishTo := rhinoflyRepo(version.value)
 
