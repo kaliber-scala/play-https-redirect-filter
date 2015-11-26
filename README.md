@@ -10,12 +10,8 @@ resolvers += "Kaliber Repository" at "https://jars.kaliber.io/artifactory/libs-r
 libraryDependencies += "net.kaliber" %% "play-https-redirect-filter" % "0.3"
 ```
 
-*Global.scala*
-```
-import nl.rhinofly.httpsredirect.HttpsRedirectFilter
+Please consult the Play Framework documentation on using filters.
 
-object Global extends WithFilters(HttpsRedirectFilter()) with GlobalSettings
-```
 
 ## Configuration
 
