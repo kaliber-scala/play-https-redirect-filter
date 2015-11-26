@@ -5,9 +5,9 @@ A simple Play Framework filter that redirects all non-secure traffic to its secu
 ## Installing
 
 ```scala
-resolvers += "Rhinofly Internal Repository" at "http://maven-repository.rhinofly.net:8081/artifactory/libs-release-local"
+resolvers += "Kaliber Repository" at "https://jars.kaliber.io/artifactory/libs-release-local"
 
-libraryDependencies += "nl.rhinofly" %% "play-https-redirect-filter" % "0.2"
+libraryDependencies += "net.kaliber" %% "play-https-redirect-filter" % "0.3"
 ```
 
 *Global.scala*
@@ -18,17 +18,6 @@ object Global extends WithFilters(HttpsRedirectFilter()) with GlobalSettings
 ```
 
 ## Configuration
-
-**trustxforwarded**
-
-If set to false, redirects (from anything else but 127.0.0.1) will not be trusted,
-and the initial (page) redirect will not succeed, resulting in most likely a 'too many redirects' error in the browser.
-
-```scala
-// default: true
-trustxforwarded = true
-```
-
 
 **httpsRedirectFilter.enabled**
 
@@ -47,9 +36,6 @@ Port to redirect to, defaults to 443
 // default: true
 httpsRedirectFilter.sslPort = 443
 ```
-
-
-
 
 ## Releasing the play-https-redirect-filter plugin
 

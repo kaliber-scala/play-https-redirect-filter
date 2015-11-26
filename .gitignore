@@ -2,6 +2,8 @@
 /target/
 /project/target/
 /project/project/
+.settings/
+logs/
 .project
 .cache
 .cache-main
