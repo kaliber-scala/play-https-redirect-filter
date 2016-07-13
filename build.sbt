@@ -4,19 +4,21 @@ ReleaseKeys.crossBuild := true
 
 name := "play-https-redirect-filter"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.7"
 
 organization := "net.kaliber"
 
-crossScalaVersions := Seq("2.10.4", scalaVersion.value)
+crossScalaVersions := Seq("2.10.6", scalaVersion.value)
 
 resolvers ++= Seq(
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
+val playVersion = "2.5.4"
+
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % "2.4.2" % "provided",
-  "com.typesafe.play" %% "play-test" % "2.4.2" % "test",
+  "com.typesafe.play" %% "play" % playVersion % "provided",
+  "com.typesafe.play" %% "play-test" % playVersion % "test",
   "org.qirx" %% "little-spec" % "0.4" % "test"
 )
 

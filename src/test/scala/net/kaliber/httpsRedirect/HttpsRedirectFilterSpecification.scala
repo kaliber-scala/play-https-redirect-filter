@@ -1,41 +1,46 @@
 package net.kaliber.httpsRedirect
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.qirx.littlespec.Specification
+import play.api.Configuration
 import play.api.http.HeaderNames
 import play.api.mvc.AnyContentAsEmpty
 import play.api.mvc.Filter
 import play.api.mvc.RequestHeader
-import play.api.mvc.Result
 import play.api.mvc.Results.NoContent
-import play.api.mvc.Results.Redirect
 import play.api.test.FakeApplication
 import play.api.test.FakeHeaders
 import play.api.test.FakeRequest
 import play.api.test.Helpers
+import HttpsRedirectFilter._
+import play.api.inject.guice.GuiceApplicationBuilder
+
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object HttpsRedirectFilterSpecification extends Specification {
 
-  import HttpsRedirectFilter._
-
   val host = "test.com"
   val sslPort = "1234"
 
-  "Tests using play configuration" - {
-    def createFilter(config: Map[String, Any] =
-      Map(
-        "httpsRedirectFilter.enabled" -> true,
-        "httpsRedirectFilter.sslPort" -> sslPort
-      )
-    ) =
-      runningTestApplication(config) {
-        import play.api.Play.current
-        HttpsRedirectFilter.fromConfiguration(current.configuration)
+  def createFilter(config: Map[String, Any] = Map.empty) =
+    runningTestApplication(config) {
+      val app = {
+        new GuiceApplicationBuilder()
+          .configure(Configuration.from(config))
+          .build()
       }
 
-    val filter = createFilter()
+      app.injector.instanceOf[HttpsRedirectFilter]
+    }
+
+  "Tests using play configuration" - {
+    val filter = createFilter(Map(
+      "httpsRedirectFilter.enabled" -> DEFAULT_ENABLED,
+      "httpsRedirectFilter.sslPort" -> sslPort
+    ))
 
     "redirect non-secure requests" - {
       val result = await(filtered(filter, secure = false)).header
@@ -70,7 +75,7 @@ object HttpsRedirectFilterSpecification extends Specification {
 
   "Tests with manual config" - {
     "block with default config" - {
-      val filter = new HttpsRedirectFilter()
+      val filter = createFilter()
       val filtered = filter(nextFilter(_))(testRequest(secure = false))
 
       val result = await(filtered).header
@@ -80,14 +85,21 @@ object HttpsRedirectFilterSpecification extends Specification {
     }
 
     "pass through when disabled" - {
-      val filter = new HttpsRedirectFilter(enabled = false, sslPort)
+      val filter = createFilter(
+        Map(
+          "httpsRedirectFilter.enabled" -> false,
+          "httpsRedirectFilter.sslPort" -> sslPort
+        ))
       val result = await(filtered(filter, secure = false))
 
       result is NoContent
     }
 
     "block with correct ssl port" - {
-      val filter = new HttpsRedirectFilter(enabled = true, sslPort)
+      val filter = createFilter(Map(
+        "httpsRedirectFilter.enabled" -> true,
+        "httpsRedirectFilter.sslPort" -> sslPort
+      ))
       val result = await(filtered(filter, secure = false)).header
 
       result.status is 303
