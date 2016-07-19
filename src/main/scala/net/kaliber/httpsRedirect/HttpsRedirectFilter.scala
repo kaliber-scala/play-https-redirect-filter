@@ -9,7 +9,6 @@ import play.api.mvc.RequestHeader
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import HttpsRedirectFilter._
-import akka.actor.ActorSystem
 
 import scala.concurrent.Future
 
