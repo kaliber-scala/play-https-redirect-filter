@@ -1,21 +1,20 @@
 package net.kaliber.httpsRedirect
 
+import HttpsRedirectFilter._
+
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import org.qirx.littlespec.Specification
 import play.api.Configuration
 import play.api.http.HeaderNames
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.mvc.Filter
 import play.api.mvc.RequestHeader
 import play.api.mvc.Results.NoContent
-import play.api.test.FakeApplication
 import play.api.test.FakeHeaders
 import play.api.test.FakeRequest
 import play.api.test.Helpers
-import HttpsRedirectFilter._
-import play.api.inject.guice.GuiceApplicationBuilder
-
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
