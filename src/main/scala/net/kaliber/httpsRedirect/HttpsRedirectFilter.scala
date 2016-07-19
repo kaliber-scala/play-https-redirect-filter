@@ -2,7 +2,7 @@ package net.kaliber.httpsRedirect
 
 import javax.inject.Inject
 
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import play.api.Configuration
 import play.api.mvc.Filter
 import play.api.mvc.RequestHeader
