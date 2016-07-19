@@ -1,14 +1,17 @@
 package net.kaliber.httpsRedirect
 
+import HttpsRedirectFilter._
+
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import org.qirx.littlespec.Specification
+import play.api.Configuration
 import play.api.http.HeaderNames
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.mvc.Filter
 import play.api.mvc.RequestHeader
-import play.api.mvc.Result
 import play.api.mvc.Results.NoContent
-import play.api.mvc.Results.Redirect
-import play.api.test.FakeApplication
 import play.api.test.FakeHeaders
 import play.api.test.FakeRequest
 import play.api.test.Helpers
@@ -18,24 +21,23 @@ import scala.concurrent.duration._
 
 object HttpsRedirectFilterSpecification extends Specification {
 
-  import HttpsRedirectFilter._
-
   val host = "test.com"
   val sslPort = "1234"
 
   "Tests using play configuration" - {
-    def createFilter(config: Map[String, Any] =
-      Map(
-        "httpsRedirectFilter.enabled" -> true,
-        "httpsRedirectFilter.sslPort" -> sslPort
-      )
-    ) =
-      runningTestApplication(config) {
-        import play.api.Play.current
-        HttpsRedirectFilter.fromConfiguration(current.configuration)
+    def createFilter(config: Map[String, Any]) = {
+      val app = {
+        new GuiceApplicationBuilder()
+        .configure(Configuration.from(config))
+        .build()
       }
+      app.injector.instanceOf[HttpsRedirectFilter]
+    }
 
-    val filter = createFilter()
+    val filter = createFilter(Map(
+      "httpsRedirectFilter.enabled" -> true,
+      "httpsRedirectFilter.sslPort" -> sslPort
+    ))
 
     "redirect non-secure requests" - {
       val result = await(filtered(filter, secure = false)).header
@@ -69,6 +71,9 @@ object HttpsRedirectFilterSpecification extends Specification {
   }
 
   "Tests with manual config" - {
+    implicit val system = ActorSystem()
+    implicit val mat = ActorMaterializer()
+
     "block with default config" - {
       val filter = new HttpsRedirectFilter()
       val filtered = filter(nextFilter(_))(testRequest(secure = false))
@@ -105,13 +110,4 @@ object HttpsRedirectFilterSpecification extends Specification {
   private def testRequest(secure: Boolean) =
     new FakeRequest("GET", "/", FakeHeaders(), AnyContentAsEmpty, secure = secure)
       .withHeaders(HeaderNames.HOST -> host)
-
-  private def runningTestApplication[T](
-    additionalConfiguration: Map[String, Any]
-  )(code: => T): T =
-    Helpers.running(
-      FakeApplication(
-        additionalConfiguration = additionalConfiguration
-      )
-    ) { code }
 }

@@ -7,11 +7,10 @@ A simple Play Framework filter that redirects all non-secure traffic to its secu
 ```scala
 resolvers += "Kaliber Repository" at "https://jars.kaliber.io/artifactory/libs-release-local"
 
-libraryDependencies += "net.kaliber" %% "play-https-redirect-filter" % "0.3"
+libraryDependencies += "net.kaliber" %% "play-https-redirect-filter" % "0.4"
 ```
 
 Please consult the Play Framework documentation on using filters.
-
 
 ## Configuration
 
