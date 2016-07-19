@@ -25,20 +25,18 @@ object HttpsRedirectFilterSpecification extends Specification {
   val host = "test.com"
   val sslPort = "1234"
 
-  def createFilter(config: Map[String, Any] = Map.empty) =
-    runningTestApplication(config) {
+  "Tests using play configuration" - {
+    def createFilter(config: Map[String, Any]) = {
       val app = {
         new GuiceApplicationBuilder()
-          .configure(Configuration.from(config))
-          .build()
+        .configure(Configuration.from(config))
+        .build()
       }
-
       app.injector.instanceOf[HttpsRedirectFilter]
     }
 
-  "Tests using play configuration" - {
     val filter = createFilter(Map(
-      "httpsRedirectFilter.enabled" -> DEFAULT_ENABLED,
+      "httpsRedirectFilter.enabled" -> true,
       "httpsRedirectFilter.sslPort" -> sslPort
     ))
 
@@ -74,8 +72,11 @@ object HttpsRedirectFilterSpecification extends Specification {
   }
 
   "Tests with manual config" - {
+    implicit val system = ActorSystem()
+    implicit val mat = ActorMaterializer()
+
     "block with default config" - {
-      val filter = createFilter()
+      val filter = new HttpsRedirectFilter()
       val filtered = filter(nextFilter(_))(testRequest(secure = false))
 
       val result = await(filtered).header
@@ -85,21 +86,14 @@ object HttpsRedirectFilterSpecification extends Specification {
     }
 
     "pass through when disabled" - {
-      val filter = createFilter(
-        Map(
-          "httpsRedirectFilter.enabled" -> false,
-          "httpsRedirectFilter.sslPort" -> sslPort
-        ))
+      val filter = new HttpsRedirectFilter(enabled = false, sslPort)
       val result = await(filtered(filter, secure = false))
 
       result is NoContent
     }
 
     "block with correct ssl port" - {
-      val filter = createFilter(Map(
-        "httpsRedirectFilter.enabled" -> true,
-        "httpsRedirectFilter.sslPort" -> sslPort
-      ))
+      val filter = new HttpsRedirectFilter(enabled = true, sslPort)
       val result = await(filtered(filter, secure = false)).header
 
       result.status is 303
@@ -117,13 +111,4 @@ object HttpsRedirectFilterSpecification extends Specification {
   private def testRequest(secure: Boolean) =
     new FakeRequest("GET", "/", FakeHeaders(), AnyContentAsEmpty, secure = secure)
       .withHeaders(HeaderNames.HOST -> host)
-
-  private def runningTestApplication[T](
-    additionalConfiguration: Map[String, Any]
-  )(code: => T): T =
-    Helpers.running(
-      FakeApplication(
-        additionalConfiguration = additionalConfiguration
-      )
-    ) { code }
 }

@@ -13,16 +13,22 @@ import akka.actor.ActorSystem
 
 import scala.concurrent.Future
 
-class HttpsRedirectFilter @Inject() (configuration: Configuration, implicit val mat: Materializer) extends Filter {
+class HttpsRedirectFilter(
+  enabled: Boolean = HttpsRedirectFilter.DEFAULT_ENABLED,
+  sslPort: String = HttpsRedirectFilter.DEFAULT_SSL_PORT
+)(implicit val mat: Materializer) extends Filter {
 
-  def apply(nextFilter: RequestHeader => Future[Result])(request: RequestHeader): Future[Result] = {
-    val enabled = configuration.getBoolean("httpsRedirectFilter.enabled").getOrElse(DEFAULT_ENABLED)
-    val sslPort = configuration.getString("httpsRedirectFilter.sslPort").getOrElse(DEFAULT_SSL_PORT)
+  @Inject
+  def this(configuration: Configuration)(implicit mat: Materializer) =
+    this(
+      configuration.getBoolean("httpsRedirectFilter.enabled").getOrElse(DEFAULT_ENABLED),
+      configuration.getString("httpsRedirectFilter.sslPort").getOrElse(DEFAULT_SSL_PORT)
+    )
 
+  def apply(nextFilter: RequestHeader => Future[Result])(request: RequestHeader): Future[Result] =
     if (enabled && !request.secure)
       Future successful Redirect(s"https://${request.domain}:${sslPort}${request.uri}")
     else nextFilter(request)
-  }
 }
 
 object HttpsRedirectFilter {
@@ -30,9 +36,6 @@ object HttpsRedirectFilter {
   val DEFAULT_SSL_PORT = "443"
   val DEFAULT_ENABLED = true
 
-  def fromConfiguration(configuration: Configuration) = {
-    implicit val system = ActorSystem()
-    implicit val mat = ActorMaterializer()
-    new HttpsRedirectFilter(configuration, mat)
-  }
+  def fromConfiguration(configuration: Configuration)(implicit mat: Materializer) =
+    new HttpsRedirectFilter(configuration)
 }
